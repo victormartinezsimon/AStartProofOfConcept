@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class NetworkManager:MonoBehaviour
 {
     public int numPlayers = 4;
-    private string _porcentajeTraps = "10";
+    private string _porcentajeTraps = "0";
     public string m_player1Name = "Player";
     public Vector3 m_player1Color = new Vector3(0f, 1f, 0.5f);
        
@@ -149,11 +149,13 @@ public class NetworkManager:MonoBehaviour
         {
             Info info = jugadoresInstanciados[i].GetComponent<Info>();
 
-            if (info.MINE)
+            if (info != null && info.MINE)
             {
                 jugadoresInstanciados[i].GetComponent<MovementController>().enabled = val;
                 jugadoresInstanciados[i].GetComponent<AnimationController>().enabled = val;
-            }
+            } else {
+				Debug.LogWarning(i + " no tineen info");
+			}
         }
     }
     public void habilitarComponentes(bool val,GameObject go)
@@ -447,7 +449,7 @@ public class NetworkManager:MonoBehaviour
 		m_playersPosition = new int[m_playersName.Count];
 		timeAcum = 0;
 		
-		habilitarComponentes(true);
+		//habilitarComponentes(true);
     }
 
 	private void instanciaPlayer() {
@@ -468,6 +470,9 @@ public class NetworkManager:MonoBehaviour
 		playerInstanciado = true;
 		habilitarComponentes(false, player);
 		info.MINE = true;
+
+		player.GetComponent<MovementController>().enabled = true;
+		player.GetComponent<AnimationController>().enabled = true;
 
 		m_playersName.Add(m_player1Name);
 
@@ -493,6 +498,10 @@ public class NetworkManager:MonoBehaviour
                 }
 				m_playersColours.Add(new Vector3(m_colorIA.r,m_colorIA.g,m_colorIA.b));
                 m_playersName.Add(name);
+
+				player.GetComponent<MovementController>().enabled = true;
+				player.GetComponent<AnimationController>().enabled = true;
+
 			}
 		}
 	}

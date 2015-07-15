@@ -23,26 +23,24 @@ public class IA : MonoBehaviour
 
 	private myThread m_thread;
 
-	/*
-    public float alphaMovimiento = 0.01f;
-    public float alphaGiro = 5;
-    public enum Giro { Derecha, Izquierda,Aleatorio }
-    public Giro como_gira = Giro.Derecha;
-    public bool haceTrampas = false;
-    public float velocidad = 10;
-    public float velocidadGiro = 0.55f;
-    public float tiempoParado = 5;
-    public float distanciaMaxima = 1.1f;
-    public float timeOutGiro = 3;
-    public string groundTag = "Ground";
+	public float alphaMovimiento = 0.01f;
+	public float velocidadGiro = 0.55f;
+	public float tiempoParado = 5;
+	public float velocidad = 2;
 
+	private float timeAcum = 0;
 
-    public enum estadoActual { Avanzado, Girando, Llegando, GirandoYAvanzando,Parado,DoNothing }
-    public estadoActual m_estado = estadoActual.DoNothing;
-	*/
+	private Vector3 nextPosition;
+	private Vector3 actualPosition;
+	private float timeChange;
+
+	public enum estadoActual { Avanzado, Girando,Parado }
+	private estadoActual m_estado = estadoActual.Parado;
+
 	// Use this for initialization
 	void Start () 
     {
+		Debug.Log("Yo soy " + gameObject.name);
         GameObject go = GameObject.FindGameObjectWithTag("Generator");
         generator=GameObject.FindGameObjectWithTag("Generator").GetComponent<MazeGenerator>();
         tablero = generator.Tablero;
@@ -61,8 +59,44 @@ public class IA : MonoBehaviour
 	}
 
 	void Update() {
+		timeParadoAcum += Time.deltaTime;
+		
 		if(!m_thread.ended) {
 			Debug.Log("not ended");
+			return;
+		}
+		if( m_estado == estadoActual.Parado ) {
+			if(timeParadoAcum >= tiempoParado) {
+				Vector2 vaux = m_thread.result.lista[0];
+				m_thread.result.lista.RemoveAt(0);
+				m_estado = estadoActual.Avanzado;
+				Vector2 vaux2 = m_thread.result.lista[0];
+				m_thread.result.lista.RemoveAt(0);
+				actualPosition = transform.position;
+				nextPosition = generator.posicionCasilla((int) vaux2.x,(int) vaux2.y);
+				timeChange = Time.realtimeSinceStartup;
+				m_animationController.setAnimacionRed(AnimationController.tipoAnimacionRed.WALK);
+			}
+			return;
+		}
+		if(m_estado == estadoActual.Avanzado) {
+			transform.LookAt(nextPosition);
+			
+			float time = (Time.realtimeSinceStartup - timeChange) / velocidad;
+			transform.position = Vector3.Lerp(actualPosition,nextPosition,time);
+
+			if(time >= (1 - alphaMovimiento)) {
+				//giramos si queremos, de momnto solo avanzamos
+				actualPosition = transform.position;
+
+				if(m_thread.result.lista.Count != 0) {
+					Vector2 vaux = m_thread.result.lista[0];
+					m_thread.result.lista.RemoveAt(0);
+					nextPosition = generator.posicionCasilla((int) vaux.x,(int) vaux.y);
+					timeChange = Time.realtimeSinceStartup;
+					transform.LookAt(nextPosition);
+				}
+			}
 		}
 	}
 

@@ -69,7 +69,7 @@ public class MazeGenerator: MonoBehaviour
         width = networkManager.Ancho;
         height = networkManager.Alto;
         m_seed = networkManager.Seed;
-		Random.seed = 10;//Seed;
+		Random.seed = Seed;
         porcentajeQuitaVidas = networkManager.PorcentajeQuitaVidas;
         //noWallNoThread();
         generateMazeKruskalNoThread();
@@ -1014,18 +1014,9 @@ public class MazeGenerator: MonoBehaviour
                     pos.y = pos.y + aumentoYPared / 2;
                     pos.z = pos.z + aumentoZPared / 2;
 
-                    int value = Random.Range(0, 100);
-                    if (value <= porcentajeQuitaVidas && j != width - 1 && i != height - 1)
-                    {
-                        tablero[i, j].trampas = false;
-                        GameObject go = Instantiate(paredQuitaVidas, pos, Quaternion.identity) as GameObject;
-                        go.name = "(" + i + " " + j + ")" + "->" + "(" + i + " " + (j + 1).ToString() + ")";
-                    }
-                    else
-                    {
+                   
                         GameObject go = Instantiate(pared, pos, Quaternion.identity) as GameObject;
                         go.name = "(" + i + " " + j + ")" + "->" + "(" + i + " " + (j+1).ToString() + ")";
-                    }
 
 
                 }
@@ -1052,21 +1043,8 @@ public class MazeGenerator: MonoBehaviour
                     pos.z = pos.z + aumentoXPared / 2;
                     Quaternion q = Quaternion.Euler(0, 90, 1);
 
-                    int value = Random.Range(0, 100);
-                    if (value <= porcentajeQuitaVidas && j != width - 1 && i != height - 1)
-                    {
-                        tablero[i, j].trampas = false;
-                        GameObject go = Instantiate(paredQuitaVidas, pos, q) as GameObject;
-                        go.name = "(" + i + " " + j + ")" + "->" + "(" + (i + 1).ToString() + " " + j + ")";
-                    }
-                    else
-                    {
                         GameObject go = Instantiate(pared, pos, q) as GameObject;
                         go.name = "(" + i + " " + j + ")" + "->" + "(" + (i+1).ToString() + " " + j + ")";
-                    }
-
-
-
                 }
                 posX = posX + aumentoZPared + aumentoXInterseccion;
             }
